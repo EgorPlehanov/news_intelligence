@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Новостной интеллект</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <table>
+          <tr>
+            <td>
+              <img src="/static/images/logo.png" alt="Лого новостной интелект" width="35" height="35" style="filter: invert(100%)">
+            </td>
+            <td>
+              <h1>Новостной интеллект</h>
+            </td>
+          </tr>
+        </table>
+        <button id="runButton">Создать сводку</button>
+    </header>
+
+    <div class="content-wrapper">
+        <table class="layout-table">
+            <tr>
+                <td class="left-column">
+                    <h3>Дата: <input type="date" id="dateInput" min="2010-01-01" max="2000-01-01"></h3>
+                    <h3>Источники:</h3>
+                    
+                    <form id="scriptForm" action="/run-script" method="post">
+                        <ul id="itemList">
+                          <li>
+                            <label class="checkbox-container">
+                              <input type="checkbox" name="item" value="ria">
+                              <span class="checkmark"></span>
+                              <a href="https://ria.ru/">РИА Новости</a>
+                            </label>
+                          </li>
+                          <li>
+                            <label class="checkbox-container">
+                              <input type="checkbox" name="item" value="kp">
+                              <span class="checkmark"></span>
+                              <a href="https://kp.ru/">Комсомольская правда</a>
+                            </label>
+                          </li>
+                          <li>
+                            <label class="checkbox-container">
+                              <input type="checkbox" name="item" value="lenta">
+                              <span class="checkmark"></span>
+                              <a href="https://lenta.ru/">Lenta.ru</a>
+                            </label>
+                          </li>
+                        </ul>
+                      </form>
+                </td>
+
+                <td class="right-column">
+                    <div id="resultText"></div>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+
+    <footer>
+      <p class="footer-warning">Внимание: Новости, представленные на этом сайте, получены с помощью машинной обработки и могут быть недостоверными. Рекомендуем всегда проверять источники.</p>
+      <p class="footer-info">© 2023 Плеханов Егор Сергеевич</p>
+    </footer>
+
+    <script src="/static/indexSetup.js" type="module"></script>
+    <script src="/static/script.js" type="module"></script>
+    <script src="/static/buttonSourcesHandler.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if news_data %}
+        <h2 class="news-list-title">Новостная сводка за {{ news_data.date }}</h2>
+        {% for block in news_data.news_blocks %}
+            <div class="news-block">
+                <table class="block-table">
+                    <tr>
+                        <td class="block-left-cell">
+                            <h3 class="block-title">{{ block.title }}</h3>
+                        </td>
+                        {% if block.links %}
+                            <td class="block-right-cell">
+                                <button class="show-sources-btn">Показать источники</button>
+                            </td>
+                        {% endif %}
+                    </tr>
+                </table>
+                <p class="block-text">{{ block.text|replace('\n', '<br>')|safe }}</p>
+                <div class="keywords-container">
+                    {% for keyword in block.keywords %}
+                        <div class="keyword-block">{{ keyword }}</div>
+                    {% endfor %}
+                </div>
+                {% if block.links %}
+                    <ul class="sources-list">
+                        {% for link in block.links %}
+                            <li><a href="{{ link.url }}">{{ link.date }} - {{ link.link_title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="result-defaultText">Нет доступных новостей. Возможно вы не указали дату или источники.</div>
+    {% endif %}
+{% endblock %}
