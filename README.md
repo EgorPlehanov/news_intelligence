@@ -71,3 +71,7 @@ To launch the application, open the main application page in your web browser. Y
 - When using the application, it is important to understand that the information provided in the news digests undergoes machine processing and topic consolidation. As a result of this process, there may be some confusion or loss of details from the original news articles. Therefore, it is always recommended to refer to the original news sources for comprehensive and accurate information.
 - The developed resource aims to provide you with a new experience of interacting with news information by allowing you to receive news digests on various topics in a convenient format. However, it is not possible to guarantee absolute accuracy and completeness of the news digests as they are the result of automated processing.
 - Therefore, if you require more detailed or reliable information about a specific news article, it is recommended to consult the original news source, which is provided in each card and can be accessed by clicking the "Show Sources" button. Verifying sources is an important practice that will help you obtain objective and reliable information, form a complete picture of events, and make informed decisions based on trusted sources.
+
+### Module interaction structure
+
+![Module interaction structure](README_foto/structure.png)
