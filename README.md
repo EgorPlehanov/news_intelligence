@@ -1,77 +1,183 @@
 # news_intelligence
-Collecting, clustering, summarizing and generating news bulletins using СhatGPT (gpt-3.5-turbo)
 
-## Page structure
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.96.0-009688)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-![Interface](README_foto/interface.png)
+[Русский](#русский) | [English](#english)
 
-- Block 1: Date and source selection elements for generating a news digest.
-- Block 2: Button to initiate the generation of a news digest.
-- Block 3: Scrollable list displaying the results of generated news digests.
-- Block 4: News digest card containing the generated content.
+![Application interface](docs/images/interface.png)
 
+## Русский
 
-### Instructions for Use
+`news_intelligence` - учебно-экспериментальное веб-приложение для сбора, кластеризации и краткого обобщения новостей. Проект объединяет парсинг новостного сайта, NLP-предобработку, кластеризацию текстов и генерацию новостных блоков через ChatGPT API.
 
-#### Step 1: Launching the Application
-To launch the application, open the main application page in your web browser. You will be presented with a page displaying instructions on how to create a news digest, as shown in Figure B.2.
+### О проекте
 
-![Figure B.2 - Start Page](README_foto/StartPage.png)
+Приложение помогает получить компактную сводку новостей за выбранную дату и по выбранным источникам. Если готовая сводка уже сохранена в базе данных, она отображается сразу; если данных нет, приложение собирает новости, группирует похожие материалы по темам, выделяет ключевые слова и формирует краткий текстовый блок.
 
-#### Step 2: Viewing News Digests
-- After launching the application, the main page will display a list of available news sources on the left, from which you can gather news for generating a digest. There will also be a date selection field. In the center of the page, the results of digest creation will be displayed, and at the top, there will be a button to initiate the process.
-- Select the desired news sources and date. Then, click the "Create Digest" button to start the data collection and processing process, if it has not been performed previously with the specified parameters. At this moment, a loading message will appear on the screen, as shown in Figure B.3. If the processing has been performed before, the results will immediately appear on the screen, as shown in Figure B.4, which were previously saved in the database.
+Проект создавался как учебная работа, поэтому он не позиционируется как production-ready сервис. Его практическая ценность - в демонстрации полного пайплайна: от сбора данных до веб-интерфейса и сохранения результата.
 
-![Figure B.3 - Loading Message](README_foto/LoadingMessage.png)
+### Возможности
 
-![Figure B.4 - Result Output](README_foto/ResultOutput.png)
+- выбор даты и источников новостей через веб-интерфейс;
+- парсинг новостей РИА Новости за период или по расписанию;
+- сохранение новостей, источников и кластеров в PostgreSQL;
+- предобработка русскоязычных текстов: токенизация, стоп-слова, лемматизация;
+- кластеризация новостей по похожести текстов с помощью TF-IDF и HDBSCAN;
+- выделение ключевых слов для каждого кластера;
+- генерация заголовка и краткого новостного блока через ChatGPT API;
+- отображение сводок и ссылок на исходные новости в HTML-шаблонах.
 
-#### Step 3: Reading News Digests
-- After the news collection and processing is complete, shortened texts of news clusters will appear on the page.
-- Each cluster consists of multiple news articles grouped by topic.
-- For each cluster, a title and a shortened text are generated, along with highlighted keywords and all the links to the original news articles for detailed information, as shown in Figure B.5.
+### Стек
 
-![Figure B.5 - News Digest Card](README_foto/NewsDigestCard.png)
+- Python
+- FastAPI
+- Jinja2
+- SQLAlchemy
+- Alembic
+- PostgreSQL
+- BeautifulSoup
+- Selenium
+- NLTK
+- pymorphy2
+- scikit-learn
+- HDBSCAN
+- Sumy
+- OpenAI API
 
-#### Step 4: Navigating the Application
-- The application also provides scrolling through news digest cards, allowing you to switch between different news topics.
-- Use the scrolling feature to view news digests on other topics.
+### Быстрый старт
 
-#### Step 5: Exiting the Application
-- To exit the application, simply close the web browser or click the "X" button on the tab.
-- If you wish to return and continue from where you left off, simply reopen the application web page. It retains the data of your current session, allowing you to resume from where you left off.
+```powershell
+git clone https://github.com/EgorPlehanov/news_intelligence.git
+cd news_intelligence
 
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
 
-### Detailed Function Description
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-1. News Collection from Various News Sources
-- The application automatically collects news from various sources.
-- It utilizes specialized parsers to extract news from each resource.
+Создайте файл `.env` на основе примера:
 
-2. News Grouping by Topic
-- After collecting the news, the application analyzes their content and determines which news articles belong to the same topic.
-- News articles related to a particular topic are grouped together into a news digest.
+```powershell
+Copy-Item .env.example .env
+```
 
-3. Generation of Concise News Digests
-- The grouped news undergo compression, which identifies the most important information within their texts and keeps only that.
-- In the final stage, the compressed texts go through artificial intelligence processing, which transforms the most significant information from the news cluster into coherent and readable text, along with generating a headline for it.
+После копирования укажите в `.env` параметры PostgreSQL и `OPENAI_API_KEY`.
 
+Примените миграции и запустите приложение:
 
-### Recommendations and Tips:
+```powershell
+alembic upgrade head
+uvicorn app.main:app --reload
+```
 
-1. Periodically Refresh the News Digest Page
-- To receive the latest news, it is recommended to periodically refresh the news digest page.
-- Click the "Create Digest" button in your web browser to fetch the latest news based on your selected parameters. This note applies to the digest for the current day. The data in the database is updated every hour.
+После запуска откройте:
 
-2. Customize Your News Preferences
-- The application provides the option to select news sources and dates to receive more relevant digests.
-- Consider choosing your preferred news sources and dates from the left panel on the application screen.
+```text
+http://127.0.0.1:8000
+```
 
-3. Refer to the Original Sources
-- When using the application, it is important to understand that the information provided in the news digests undergoes machine processing and topic consolidation. As a result of this process, there may be some confusion or loss of details from the original news articles. Therefore, it is always recommended to refer to the original news sources for comprehensive and accurate information.
-- The developed resource aims to provide you with a new experience of interacting with news information by allowing you to receive news digests on various topics in a convenient format. However, it is not possible to guarantee absolute accuracy and completeness of the news digests as they are the result of automated processing.
-- Therefore, if you require more detailed or reliable information about a specific news article, it is recommended to consult the original news source, which is provided in each card and can be accessed by clicking the "Show Sources" button. Verifying sources is an important practice that will help you obtain objective and reliable information, form a complete picture of events, and make informed decisions based on trusted sources.
+> Важно: для работы проекта нужен доступный PostgreSQL, ключ OpenAI API и установленный браузер/драйвер для Selenium.
 
-### Module interaction structure
+### Документация
 
-![Module interaction structure](README_foto/structure.png)
+- [Описание проекта и архитектуры](docs/project-overview.md)
+- [Запуск и разработка](docs/development.md)
+
+### Статус
+
+Проект находится в учебно-экспериментальном состоянии. Основной сценарий реализован, но перед использованием как публичного сервиса нужны доработка конфигурации, тесты, обработка ошибок, обновление зависимостей и более надежная работа с внешними источниками.
+
+### License
+
+Проект распространяется по лицензии [MIT](LICENSE).
+
+## English
+
+`news_intelligence` is an educational and experimental web application for collecting, clustering, and summarizing news. It combines news parsing, NLP preprocessing, text clustering, and ChatGPT-based digest generation.
+
+### About
+
+The application creates a compact news digest for a selected date and set of sources. If a digest has already been saved in the database, it is returned immediately; otherwise, the project collects articles, groups related news by topic, extracts keywords, and generates a short readable news block.
+
+This is not a production-ready service. The project demonstrates an end-to-end data pipeline: collection, storage, processing, summarization, and presentation in a web UI.
+
+### Features
+
+- date and source selection through a web interface;
+- scheduled and period-based RIA Novosti parsing;
+- PostgreSQL storage for news, sources, and clusters;
+- Russian text preprocessing with tokenization, stop-word filtering, and lemmatization;
+- TF-IDF and HDBSCAN-based news clustering;
+- keyword extraction for each cluster;
+- title and digest generation via ChatGPT API;
+- HTML output with source links for each digest card.
+
+### Tech Stack
+
+- Python
+- FastAPI
+- Jinja2
+- SQLAlchemy
+- Alembic
+- PostgreSQL
+- BeautifulSoup
+- Selenium
+- NLTK
+- pymorphy2
+- scikit-learn
+- HDBSCAN
+- Sumy
+- OpenAI API
+
+### Quick Start
+
+```powershell
+git clone https://github.com/EgorPlehanov/news_intelligence.git
+cd news_intelligence
+
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+Create a `.env` file from the example:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then update `.env` with your PostgreSQL settings and `OPENAI_API_KEY`.
+
+Apply migrations and run the application:
+
+```powershell
+alembic upgrade head
+uvicorn app.main:app --reload
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
+
+> Note: the project requires PostgreSQL, an OpenAI API key, and a browser/driver setup for Selenium.
+
+### Documentation
+
+- [Project overview and architecture](docs/project-overview.md)
+- [Setup and development](docs/development.md)
+
+### Status
+
+This is an educational and experimental prototype. The main workflow is implemented, but production use would require stronger configuration management, tests, error handling, dependency updates, and more robust external-source parsing.
+
+### License
+
+This project is licensed under the [MIT License](LICENSE).

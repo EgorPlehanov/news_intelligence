@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "news-intelligence"
+version = "0.1.0"
+description = "Educational web application for collecting, clustering, and summarizing news."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "Egor Plehanov" }
+]
+dependencies = [
+    "alembic==1.11.1",
+    "beautifulsoup4==4.12.2",
+    "fastapi==0.96.0",
+    "hdbscan==0.8.29",
+    "Jinja2==3.1.2",
+    "langcodes==3.3.0",
+    "langdetect==1.0.9",
+    "matplotlib==3.7.1",
+    "more-itertools==9.1.0",
+    "nltk==3.8.1",
+    "openai==0.27.7",
+    "psycopg2==2.9.6",
+    "pydantic==1.10.8",
+    "pymorphy2==0.9.1",
+    "pymorphy2-dicts-ru==2.4.417127.4579844",
+    "python-dotenv==1.0.0",
+    "python-multipart==0.0.6",
+    "requests==2.31.0",
+    "rouge-score==0.1.2",
+    "schedule==1.2.0",
+    "scikit-learn==1.2.2",
+    "selenium==4.9.1",
+    "SQLAlchemy==2.0.15",
+    "sumy==0.11.0",
+    "transformers==4.29.2",
+    "uvicorn==0.22.0",
+    "wordcloud==1.9.2"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0"
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
