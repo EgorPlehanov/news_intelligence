@@ -6,7 +6,7 @@
 
 [Русский](#русский) | [English](#english)
 
-![Application interface](docs/images/interface.png)
+![Application interface](docs/images/ResultOutput.png)
 
 ## Русский
 
