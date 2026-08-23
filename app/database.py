@@ -15,6 +15,15 @@ Base = declarative_base()
 
 @contextmanager
 def get_db():
+    """
+    Создает контекст работы с сессией базы данных.
+
+    Args:
+        Нет.
+
+    Returns:
+        Iterator[Session]: SQLAlchemy-сессия, которая закрывается после выхода из контекста.
+    """
     db = SessionLocal()
     try:
         yield db

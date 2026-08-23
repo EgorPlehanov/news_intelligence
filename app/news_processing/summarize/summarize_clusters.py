@@ -11,7 +11,15 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 
 def get_response(messages):
-    '''Получение ответа на ChatGPT'''
+    """
+    Отправляет сообщения в ChatGPT API с повторными попытками при ошибке.
+
+    Args:
+        messages (list[dict]): История сообщений в формате OpenAI ChatCompletion.
+
+    Returns:
+        openai.openai_object.OpenAIObject | None: Ответ модели или None после исчерпания попыток.
+    """
     time.sleep(10)
     max_attempts = 3
     current_attempt = 1
@@ -25,6 +33,7 @@ def get_response(messages):
         except Exception as e:
             print(f"Ошибка запроса: {str(e)}")
             if current_attempt < max_attempts:
+                # Пауза между попытками увеличивается, чтобы снизить риск повторной ошибки API.
                 sleep_time = 10 + 10 * current_attempt
                 print(f'Повторная попытка через {sleep_time} секунд...')
                 time.sleep(sleep_time)
@@ -34,6 +43,15 @@ def get_response(messages):
 
 
 def summarize_clusters(clusters):
+    """
+    Создает заголовок и текст сводки для каждого кластера новостей.
+
+    Args:
+        clusters (dict): Кластеры с исходными новостями и ключевыми словами.
+
+    Returns:
+        dict: Те же кластеры, дополненные полями cluster_title и cluster_text.
+    """
 
     # Общее количество токенов на сводку
     summarize_tokens = 0
@@ -51,12 +69,14 @@ def summarize_clusters(clusters):
 
     # Перебор каждого кластера
     for cluster_label, cluster_dict in clusters.items():
+        # Тексты новостей внутри кластера объединяются, чтобы сначала получить краткую выжимку по теме.
         texts = "\n".join([news_item.text for news_item in cluster_dict['items']])
        
         # Сокращение текстов новостей
         text = summarize_text(texts)
         print(f'\n\nКластер {cluster_label}\n\n', text, '\n')
 
+        # Диалог разделен на два запроса: сначала модель придумывает заголовок, затем пишет сам блок.
         messages=[
             {"role": "system", "content": "Ты программа, которой я отправляю несколько текстов новостей на одну тему. Твоя задача - придумывать заголовки и создавать новостной блок из присланного текста. Укажи главные факты и события из текстов."},
             {"role": "user", "content": f'Вот текст новостей: {text}'},
@@ -78,7 +98,7 @@ def summarize_clusters(clusters):
         # Считаем общее количество потраченных токенов
         summarize_tokens += cluster_title.usage.total_tokens + cluster_text.usage.total_tokens
 
-        # Достаем текст заголовка и новостной сводки из response
+        # Из response берется только пользовательский текст без служебной структуры API.
         cluster_title = cluster_title.choices[0].message.content.strip('"').strip()
         cluster_text = cluster_text.choices[0].message.content.replace("\n\n", "\n").strip()
 
@@ -93,7 +113,7 @@ def summarize_clusters(clusters):
         for key, value in evaluation.items():
             average_scores[key] += value
 
-    # Вычисляем средние значения каждого параметра
+    # Средние метрики считаются по всем кластерам одной сводки.
     num_evaluations = len(evaluation_results)
     for key in average_scores:
         average_scores[key] /= num_evaluations

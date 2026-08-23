@@ -28,16 +28,36 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
+    """
+    Отображает главную страницу приложения.
+
+    Args:
+        request (Request): HTTP-запрос FastAPI, который передается в шаблон.
+
+    Returns:
+        TemplateResponse: HTML-страница с формой выбора даты и источников.
+    """
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.post("/run-script")
 async def run_script(request: Request):
+    """
+    Обрабатывает отправку формы и запускает создание новостной сводки.
+
+    Args:
+        request (Request): HTTP-запрос с данными формы: источниками и датой.
+
+    Returns:
+        TemplateResponse: HTML-страница с блоками новостных сводок.
+    """
     form = await request.form()
+    # Данные формы приходят как списки строк; выбранные источники хранятся одной строкой через запятую.
     selected_sources = form.getlist('items')[0].split(',')   #['ria', 'kp', 'Lenta']
     selected_date_text = form.getlist('date')[0]
     selected_date = datetime.strptime(selected_date_text, '%Y-%m-%d').date() if selected_date_text else date.today()
 
+    # Сводка создается только при выбранных источниках, иначе шаблон получает пустой список результатов.
     if len(selected_sources) > 0 and selected_sources != ['']:
         news_blocks = news_processing(selected_date, selected_sources)
     else:

@@ -8,6 +8,16 @@ from .processing_utils import validate_and_save_clusters, convert_clasters_to_di
 
 
 def news_processing(selected_date, selected_sources):
+    """
+    Строит или получает из БД новостную сводку за выбранную дату и источники.
+
+    Args:
+        selected_date (date): Дата, за которую пользователь запросил сводку.
+        selected_sources (list[str]): Список выбранных источников новостей.
+
+    Returns:
+        dict: Данные сводки в формате, подготовленном для отображения в шаблоне.
+    """
     print(selected_sources, selected_date)
 
     # Получение кластеров по источникам и дате
@@ -20,7 +30,7 @@ def news_processing(selected_date, selected_sources):
         with get_db() as db:
             sources_without_news = get_sources_without_news_by_date_sources(db, selected_date, selected_sources)
 
-        # Запускаем парсинг если данных нет
+        # Парсер запускается только для источников, по которым в БД еще нет новостей за выбранную дату.
         if len(sources_without_news) > 0:
             parse_news(selected_date, selected_date, sources_without_news)
 

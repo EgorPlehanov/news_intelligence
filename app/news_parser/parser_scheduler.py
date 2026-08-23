@@ -6,7 +6,15 @@ from .parser import parse_news
 
 
 def schedule_job():
-    '''Запуск задачи парсинга новостей раз в час'''
+    """
+    Создает и выполняет расписание регулярного парсинга новостей.
+
+    Args:
+        Нет.
+
+    Returns:
+        None: Функция работает в бесконечном цикле планировщика.
+    """
     # Определяем начальное время расписания на полуночь
     schedule.every(1).hours.at(':01').do(parse_news)
     while True:
@@ -15,6 +23,14 @@ def schedule_job():
 
 
 def start_scheduler():
-    '''Запуск планировщика в отдельном потоке'''
+    """
+    Запускает планировщик парсинга в отдельном потоке.
+
+    Args:
+        Нет.
+
+    Returns:
+        None: Функция стартует фоновый поток и не возвращает результат.
+    """
     schedule_thread = threading.Thread(target=schedule_job)
     schedule_thread.start()

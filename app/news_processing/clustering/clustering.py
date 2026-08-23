@@ -10,6 +10,16 @@ from ..summarize.summarize_utils import evaluate_clustering
 
 
 def clusterize_news(sources, date):
+    """
+    Кластеризует новости по смысловой близости предварительно обработанных текстов.
+
+    Args:
+        sources (list[str]): Источники новостей, выбранные пользователем.
+        date (date): Дата, за которую нужно кластеризовать новости.
+
+    Returns:
+        defaultdict: Кластеры новостей с элементами и ключевыми словами.
+    """
     # Вызов CRUD-операции для получения новостей из базы данных
     with get_db() as db:
         news_items = get_news_by_date_sources(db, date, sources)
@@ -31,7 +41,7 @@ def clusterize_news(sources, date):
     # scaler = StandardScaler()
     # X = scaler.fit_transform(X)
 
-    # Кластеризация новостей с использованием алгоритма HDBSCAN
+    # HDBSCAN группирует похожие новости без заранее заданного количества кластеров.
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=2,
         gen_min_span_tree=True
@@ -53,6 +63,7 @@ def clusterize_news(sources, date):
     clusters = defaultdict(lambda: {'items': [], 'keywords': []})
     for i, news_item in enumerate(news_items):
         cluster_label = cluster_labels[i]
+        # Метка -1 в HDBSCAN означает шумовой объект, который не вошел ни в один устойчивый кластер.
         if cluster_label != -1:  # Исключаем выбросы
             cluster = clusters[cluster_label]
             cluster['items'].append(news_item)
@@ -65,6 +76,7 @@ def clusterize_news(sources, date):
 
     # Получение списка ключевых слов для каждого кластера
     for cluster_label, cluster_dict in clusters.items():
+        # Все тексты кластера объединяются, чтобы ключевые слова отражали общую тему группы.
         cluster_documents = ' '.join([item.preprocessed_text for item in cluster_dict['items']])
         # Сохранение списка ключевых слов в словаре кластера
         cluster_dict['keywords'] = extract_keywords(cluster_documents)

@@ -15,14 +15,24 @@ from app.news_processing.clustering.clustering_utils import preprocess_text
 
 
 def get_news_data(start_time, end_time, content)-> List[NewsCreate]:
-    '''Вытаскиваем из html кода списка данные о новостях'''
+    """
+    Извлекает новости РИА из HTML списка материалов за заданный период.
+
+    Args:
+        start_time (datetime): Нижняя граница времени публикации.
+        end_time (datetime): Верхняя граница времени публикации.
+        content (str): HTML-разметка списка новостей.
+
+    Returns:
+        List[NewsCreate]: Список новостей, подготовленных для сохранения в БД.
+    """
     news_list = []
     
     soup = BeautifulSoup(content, 'html.parser')
     news_blocks = soup.find_all('div', class_='list-item')
 
     for block in news_blocks:
-        # Извлечение информации о новости
+        # Сначала читается дата из карточки списка, чтобы быстро отфильтровать лишние материалы.
         date = block.find('div', class_='list-item__date').text.strip()
         news_datetime = parse_date(date)
 
@@ -30,6 +40,7 @@ def get_news_data(start_time, end_time, content)-> List[NewsCreate]:
 
         # Проверка времени новости и добавление ее в список
         if start_time <= news_datetime <= end_time:
+            # Полный текст берется со страницы новости, а затем нормализуется для дальнейшей кластеризации.
             title = block.find('a', class_='list-item__title').text.strip()
             link = block.find('a', class_='list-item__title')['href']
             article_text = get_article_text(link)
@@ -54,7 +65,18 @@ def get_news_data(start_time, end_time, content)-> List[NewsCreate]:
 
 
 def parse_ria_news_period_data(start_date=None, end_date=None, is_save_to_file=False):
-    '''Собираем новости за указанный период'''
+    """
+    Собирает новости РИА Новости за указанный период через страницу архива.
+
+    Args:
+        start_date (date | datetime | None): Начало периода; при None используется начало текущего дня.
+        end_date (date | datetime | None): Конец периода; при None используется конец текущего дня.
+        is_save_to_file (bool): Нужно ли сохранить полученную HTML-разметку в файл.
+
+    Returns:
+        List[NewsCreate]: Список найденных новостей или пустой список при ошибке.
+    """
+    # Входные date приводятся к datetime, чтобы сравнение с датой публикации было единообразным.
     if start_date is None:
         start_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     elif not isinstance(start_date, datetime):
@@ -97,7 +119,7 @@ def parse_ria_news_period_data(start_date=None, end_date=None, is_save_to_file=F
                 EC.presence_of_all_elements_located((By.XPATH, '//div[@class="list"]'))
             )
 
-            # Проверяем, сколько новых элементов было загружено
+            # Если контейнер списка не найден, дальше извлекать новости с текущей страницы нельзя.
             if len(new_items) == 0:
                 break  # Прерываем цикл, если новые элементы больше не загружаются
 
@@ -107,7 +129,7 @@ def parse_ria_news_period_data(start_date=None, end_date=None, is_save_to_file=F
             date_str = last_date_element.text.strip()
             news_date = parse_date(date_str)
 
-            # Проверяем, не выходит ли новость за указанную дату
+            # Прокрутка останавливается, когда последняя загруженная новость уже старше нужного периода.
             if news_date < start_date:
                 break  # Прерываем цикл, если новость выходит за указанную дату
 

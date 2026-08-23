@@ -13,7 +13,15 @@ import nltk
 
 
 def count_tokens(text):
-    '''Считает количество токенов в тексте'''
+    """
+    Считает количество токенов в тексте с помощью BERT-токенизатора.
+
+    Args:
+        text (str): Текст, для которого нужно посчитать токены.
+
+    Returns:
+        int: Количество токенов после токенизации.
+    """
     # Загрузка предварительно обученного токенизатора
     tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
@@ -26,7 +34,17 @@ def count_tokens(text):
 
 
 def summarize_text(text, sentences_count = 4):
-    '''Сокрошение текста'''
+    """
+    Сокращает текст до заданного количества предложений методом LSA.
+
+    Args:
+        text (str): Исходный текст для сокращения.
+        sentences_count (int): Количество предложений в кратком изложении.
+
+    Returns:
+        str: Сокращенный текст.
+    """
+    # Sumy строит внутреннее представление документа и выбирает наиболее значимые предложения.
     parser = PlaintextParser.from_string(text, Tokenizer("russian"))
     summarizer = LsaSummarizer()
     summary = summarizer(parser.document, sentences_count=sentences_count)
@@ -36,6 +54,16 @@ def summarize_text(text, sentences_count = 4):
 
 
 def evaluate_text_reduction(original_text, shortened_text):
+    """
+    Рассчитывает метрики сходства исходного и сокращенного текста.
+
+    Args:
+        original_text (str): Исходный полный текст.
+        shortened_text (str): Сокращенный текст или итоговая сводка.
+
+    Returns:
+        dict: Значения метрик Жаккара, косинусного расстояния, BLEU, ROUGE и плотности слов.
+    """
     # Удаление пунктуации и приведение к нижнему регистру
     original_text = original_text.lower()
     shortened_text = shortened_text.lower()
@@ -68,7 +96,7 @@ def evaluate_text_reduction(original_text, shortened_text):
     rouge_scores = scorer.score(original_text, shortened_text)
     rouge_f_score = rouge_scores['rougeL'].fmeasure
 
-    # Расчет удельной частоты уникальных слов
+    # Плотность уникальных слов помогает оценить, насколько итоговый текст насыщен разной лексикой.
     original_unique_words = set(original_word_list)
     shortened_unique_words = set(shortened_word_list)
     original_word_density = len(original_unique_words) / len(original_word_list)
@@ -93,15 +121,14 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_har
 
 def evaluate_clustering(labels, features):
     """
-    Функция оценки качества кластеризации.
+    Оценивает качество кластеризации по нескольким метрикам.
 
-    Параметры:
-    labels (list): Список меток кластеров для каждого объекта.
-    features (list): Список признаков для каждого объекта. 
-                     Должен быть двумерным (количество объектов x количество признаков).
+    Args:
+        labels (list): Список меток кластеров для каждого объекта.
+        features (list): Двумерный список или массив признаков объектов.
 
-    Возвращает:
-    dict: Словарь со значениями метрик.
+    Returns:
+        dict: Словарь со значениями Silhouette, Davies-Bouldin и Calinski-Harabasz.
     """
 
     metrics = {}

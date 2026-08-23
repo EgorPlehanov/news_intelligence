@@ -17,9 +17,27 @@ class NewsBase(BaseModel):
 
 class NewsCreate(NewsBase):
     def __hash__(self):
+        """
+        Формирует хеш новости для удаления дублей в списках.
+
+        Args:
+            Нет.
+
+        Returns:
+            int: Хеш по дате, заголовку, источнику и ссылке.
+        """
         return hash((self.date, self.title, self.source_id, self.link))
     
     def __eq__(self, other):
+        """
+        Сравнивает две новости по полям, которые определяют дубликат.
+
+        Args:
+            other (object): Объект для сравнения с текущей новостью.
+
+        Returns:
+            bool: True, если объект является такой же новостью, иначе False.
+        """
         if not isinstance(other, type(self)):
             return False
         return (

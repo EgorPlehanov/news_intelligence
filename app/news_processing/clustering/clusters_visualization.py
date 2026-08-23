@@ -5,7 +5,17 @@ import os
 
 
 def generate_wordclouds(clusters):
+    """
+    Строит облака слов для кластеров новостей.
+
+    Args:
+        clusters (dict): Словарь кластеров, где каждому кластеру соответствует список новостей.
+
+    Returns:
+        None: Функция отображает графики через matplotlib.
+    """
     for cluster_label, news_items in clusters.items():
+        # Для облака слов используются уже предобработанные тексты, чтобы убрать шумовые слова.
         text = ' '.join(news_item.preprocessed_text for news_item in news_items)
 
         root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))

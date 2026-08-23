@@ -13,13 +13,29 @@ morph = pymorphy2.MorphAnalyzer()
 
 
 def get_text_language(text):
-    '''Определение языка текста'''
+    """
+    Определяет язык переданного текста.
+
+    Args:
+        text (str): Текст для определения языка.
+
+    Returns:
+        str: Название языка на английском языке.
+    """
     lang_code = detect(text)
     return langcodes.Language(lang_code).language_name('en')
 
 
 def preprocess_text(text):
-    '''Токенизация текста'''
+    """
+    Подготавливает текст новости для векторизации и кластеризации.
+
+    Args:
+        text (str): Исходный текст новости.
+
+    Returns:
+        str: Нормализованный текст из лемм без стоп-слов и пунктуации.
+    """
     # Токенизация текста
     tokens = word_tokenize(text)
     
@@ -30,7 +46,7 @@ def preprocess_text(text):
     stop_words = set(stopwords.words('russian'))
     tokens = [token for token in tokens if token not in stop_words]
     
-    # Лемматизация с кэшированием
+    # Кэш уменьшает количество повторных обращений к pymorphy2 для одинаковых слов.
     tokens = [morph_cache[token] if token in morph_cache else morph_cache.setdefault(token, morph.parse(token)[0].normal_form) for token in tokens]
     
     # Удаление символов пунктуации
@@ -41,12 +57,23 @@ def preprocess_text(text):
 
 
 def extract_keywords(text, max_keywords=10):
+    """
+    Выделяет ключевые слова из текста кластера.
+
+    Args:
+        text (str): Объединенный предобработанный текст новостей кластера.
+        max_keywords (int): Максимальное количество ключевых слов.
+
+    Returns:
+        list[str]: Список наиболее частотных ключевых слов.
+    """
     # Токенизация текста
     tokens = word_tokenize(text)
     morph = pymorphy2.MorphAnalyzer()
     lemmas = set()
     for token in tokens:
         parsed_token = morph.parse(token)[0]
+        # В ключевые слова попадают только смысловые части речи: существительные, прилагательные и глаголы.
         if parsed_token.tag.POS in ['NOUN', 'ADJF', 'ADJS', 'VERB', 'INFN']:
             lemmas.add(parsed_token.normal_form)
 
@@ -59,7 +86,7 @@ def extract_keywords(text, max_keywords=10):
     # Преобразование текста в матрицу признаков
     feature_matrix = vectorizer.fit_transform([token for token in tokens if morph.parse(token)[0].normal_form in keywords])
 
-    # Расчет суммы по столбцам для каждого признака
+    # Частотность признаков используется как простая оценка значимости слова внутри кластера.
     feature_sum = feature_matrix.sum(axis=0)
 
     # Получение списка индексов признаков с наибольшими суммами

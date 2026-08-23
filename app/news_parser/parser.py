@@ -10,6 +10,17 @@ from .ria_parsers.parser_period_ria import parse_ria_news_period_data
 
 
 def parse_news(start_date=None, end_date=None, selected_sources=None):
+    """
+    Запускает парсинг новостей и сохраняет полученные материалы в базу данных.
+
+    Args:
+        start_date (date | datetime | None): Начальная дата периода парсинга.
+        end_date (date | datetime | None): Конечная дата периода парсинга.
+        selected_sources (list[str] | None): Источники, которые нужно обработать.
+
+    Returns:
+        None: Функция сохраняет новости в БД и выводит статус в консоль.
+    """
     print('Парсинг новостей запущен', datetime.now().strftime('%H:%M:%S'))
 
     all_news = []
@@ -18,7 +29,7 @@ def parse_news(start_date=None, end_date=None, selected_sources=None):
         all_news.extend(parse_ria_news())
     else:
         for source in selected_sources:
-            # Формируем имя функции на основе значения источника
+            # Имя функции собирается из кода источника, чтобы общий парсер мог вызывать разные реализации.
             function_name = f"parse_{source}_news_period_data"
             # Проверяем, существует ли функция с таким именем
             if hasattr(sys.modules[__name__], function_name):

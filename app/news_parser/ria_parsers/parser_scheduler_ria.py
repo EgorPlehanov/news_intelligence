@@ -12,7 +12,15 @@ from app.news_processing.clustering.clustering_utils import preprocess_text
 
 
 def get_article_text(url):
-    '''Получаем текст статьи'''
+    """
+    Загружает страницу новости РИА и извлекает основной текст статьи.
+
+    Args:
+        url (str): Ссылка на страницу новости.
+
+    Returns:
+        str: Текст статьи или пустая строка, если загрузка не удалась.
+    """
     retry_count = 0
     while retry_count < 3:
         try:
@@ -21,7 +29,7 @@ def get_article_text(url):
             content = response.content
             soup = BeautifulSoup(content, 'html.parser')
             
-            # Находим все блоки статьи с data-type="text"
+            # Текст статьи на РИА разбит на несколько article__block, поэтому собираются все текстовые блоки.
             article_blocks = soup.find_all('div', class_='article__block', attrs={'data-type': 'text'})
             
             article_text = ''
@@ -50,7 +58,15 @@ def get_article_text(url):
 
 
 def parse_ria_news()-> List[NewsCreate]:
-    '''Собираем статьи с сайта РИА Новости'''
+    """
+    Собирает новости РИА Новости за предыдущий час.
+
+    Args:
+        Нет.
+
+    Returns:
+        List[NewsCreate]: Список новостей за предыдущий час в хронологическом порядке.
+    """
      # Получаем текущую дату и время
     now = datetime.now()
 
@@ -69,13 +85,14 @@ def parse_ria_news()-> List[NewsCreate]:
 
     while has_more_news:
         try:
+            # Страница архива загружается порциями: после обработки текущей порции берется ссылка "Еще 20 материалов".
             response = requests.get(url)
             content = response.content
             soup = BeautifulSoup(content, 'html.parser')
             news_blocks = soup.find_all('div', class_='list-item')
 
             for block in news_blocks:
-                # Извлечение информации о новости
+                # Дата проверяется до загрузки статьи, чтобы не делать лишние сетевые запросы.
                 date = block.find('div', class_='list-item__date').text.strip()
                 news_datetime = parse_date(date)
 
